@@ -24,90 +24,39 @@ static int size = 0;
  */
 static char buffer[RECEIVE_BUFFER_SIZE];
 
-static void master1() {
-	unsigned long counter = 0;
+static std::vector<double> targets;
 
-	if(rank != ROOT_NODE) {
-		return;
-	}
+static SlotModel model;
 
-	/*
-	 * Send ... to all other nodes.
-	 */{
-//		const std::string &value = .toString();
-		for(int r=0; r<size; r++) {
-			/*
-			 * Root node is not included.
-			 */
-			if(r == ROOT_NODE) {
-				continue;
-			}
+static void targetsToString(char *buffer, const std::vector<double> &targets) {
+    char value[100];
 
-//			MPI_Send(value.c_str(), value.size(), MPI_BYTE, r, DEFAULT_TAG, MPI_COMM_WORLD);
-		}
-	}
+    sprintf(value, "%d", (int)targets.size());
 
-	std::map<int,GeneticAlgorithm> populations;
-	do {
-		std::cout << "Round : " << (counter+1) << std::endl;
+    buffer[0] = '\0';
+    strcat(buffer, value);
 
-		/*
-		 * Send GA population to all other nodes.
-		 */
-		for(int r=0; r<size; r++) {
-			/*
-			 * Root node is not included.
-			 */
-			if(r == ROOT_NODE) {
-				continue;
-			}
-
-			GeneticAlgorithm ga;
-			if(counter == 0) {
-//				GeneticAlgorithmOptimizer::addRandomReels(ga, , , LOCAL_POPULATION_SIZE);
-				populations[r] = ga;
-			} else {
-				/*
-				 * Ring migration strategy.
-				 */
-				int next = (r+1) % size;
-				while(next == ROOT_NODE) {
-					next = (next+1) % size;
-				}
-
-				if(RANDOM_TRAVELER == true) {
-					populations[r].replaceWorst(populations[next].getRandomChromosome());
-				} else {
-					populations[r].replaceWorst(populations[next].getBestChromosome());
-				}
-			}
-			const std::string &value = populations[r].toString();
-			MPI_Send(value.c_str(), value.size(), MPI_BYTE, r, DEFAULT_TAG, MPI_COMM_WORLD);
-		}
-
-		/*
-		 * Collect results from all other nodes.
-		 */
-		for(int r=0; r<size; r++) {
-			/*
-			 * Root node is not included.
-			 */
-			if(r == ROOT_NODE) {
-				continue;
-			}
-
-			GeneticAlgorithm ga;
-			MPI_Recv(buffer, RECEIVE_BUFFER_SIZE, MPI_BYTE, r, DEFAULT_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-			ga.fromString(buffer);
-			populations[r] = ga;
-			std::cout << "Worker " << r << " : " << ga.getBestChromosome().fitness << std::endl;
-		}
-
-		counter++;
-	} while(counter < NUMBER_OF_BROADCASTS);
+    for(int i=0; i<targets.size(); i++) {
+        strcat(buffer, " ");
+        sprintf(value, "%lf", targets[i]);
+        strcat(buffer, value);
+    }
 }
 
-static void master2() {
+static void stringToTargets(std::vector<double> &targets, char *buffer) {
+    int count;
+    sscanf(buffer, "%d", &count);
+    buffer = strstr(buffer, " ") + 1;
+
+    double value;
+    for(int i=0; i<count; i++) {
+        sscanf(buffer, "%lf", &value);
+        targets.push_back(value);
+        buffer = strstr(buffer, " ") + 1;
+    }
+}
+
+static void master() {
 	unsigned long counter = 0;
 
 	if(rank != ROOT_NODE) {
@@ -115,9 +64,9 @@ static void master2() {
 	}
 
 	/*
-	 * Send ... to all other nodes.
+	 * Send optimization targets to all other nodes.
 	 */{
-//		const std::string &value = .toString();
+		targetsToString(buffer, targets);
 		for(int r=0; r<size; r++) {
 			/*
 			 * Root node is not included.
@@ -126,7 +75,7 @@ static void master2() {
 				continue;
 			}
 
-//			MPI_Send(value.c_str(), value.size(), MPI_BYTE, r, DEFAULT_TAG, MPI_COMM_WORLD);
+			MPI_Send(buffer, strlen(buffer), MPI_BYTE, r, DEFAULT_TAG, MPI_COMM_WORLD);
 		}
 	}
 
@@ -144,7 +93,8 @@ static void master2() {
 			}
 
 			if(counter == 0) {
-//				GeneticAlgorithmOptimizer::addRandomReels(global, , , LOCAL_POPULATION_SIZE*size);
+				GeneticAlgorithmOptimizer::addRandomReels(global, model, targets
+                                              , LOCAL_POPULATION_SIZE*size);
 				GeneticAlgorithm ga;
 				global.subset(ga, LOCAL_POPULATION_SIZE);
 				populations[r] = ga;
@@ -188,15 +138,16 @@ static void master2() {
 	} while(counter < NUMBER_OF_BROADCASTS);
 }
 
-static void slave1() {
+static void slave() {
 	unsigned long counter = 0;
 
 	if(rank == ROOT_NODE) {
 		return;
 	}
 
+    std::vector<double> targets;
 	MPI_Recv(buffer, RECEIVE_BUFFER_SIZE, MPI_BYTE, ROOT_NODE, DEFAULT_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-//	.fromString(buffer);
+    stringToTargets(targets, buffer);
 
 	do {
 		GeneticAlgorithm ga;
@@ -206,17 +157,13 @@ static void slave1() {
 		/*
 		 * Calculate as regular node.
 		 */
-//		GeneticAlgorithmOptimizer::optimize(ga, , , LOCAL_OPTIMIZATION_EPOCHES);
+		GeneticAlgorithmOptimizer::optimize(ga, model, targets, LOCAL_OPTIMIZATION_EPOCHES);
 
 		std::string result = ga.toString();
 		MPI_Send(result.c_str(), result.size(), MPI_BYTE, ROOT_NODE, DEFAULT_TAG, MPI_COMM_WORLD);
 
 		counter++;
 	} while(counter < NUMBER_OF_BROADCASTS);
-}
-
-static void slave2() {
-	slave1();
 }
 
 int main(int argc, char **argv) {
@@ -226,13 +173,19 @@ int main(int argc, char **argv) {
 
 	srand( time(NULL)^getpid() );
 
+    targets.push_back(0.65);
+    targets.push_back(0.09);
+    targets.push_back(0.03);
+    targets.push_back(0.01);
+    targets.push_back(0.08);
+    targets.push_back(0.04);
+    targets.push_back(0.01);
+
 	/*
 	 * Firs process will distribute the working tasks.
 	 */
-	master1();
-	slave1();
-	master2();
-	slave2();
+	master();
+	slave();
 
 	MPI_Finalize();
 

@@ -7,18 +7,20 @@
 
 #define ROWS_SIZE 3
 
+#define INVALID_REELS_PENALTY 10000
+
 class SlotModel {
-private:
+public:
 
-	static std::vector<std::string> symbols;
+	std::vector<std::string> symbols;
 
-	static std::vector<std::string> types;
+	std::vector<std::string> types;
 
-	static std::vector<std::vector<int> > paytable;
+	std::vector<std::vector<int> > paytable;
 
-	static std::vector<int> multipliers;
+	std::vector<int> multipliers;
 
-	static std::vector<std::vector<int> > lines;
+	std::vector<std::vector<int> > lines;
 
 private:
 
@@ -448,17 +450,6 @@ public:
 		}
 	}
 
-	void init() {
-		/*
-		 * Initialize stops of the reels in the beginning.
-		 */
-		stops.clear();
-		for(int i=0; i<reels.size(); i++) {
-			stops.push_back(0);
-		}
-		line.clear();
-	}
-
 	void load(const std::vector<std::vector<int> > &values) {
 		reels.clear();
 
@@ -470,7 +461,7 @@ public:
 		}
 	}
 
-	unsigned long combinations() {
+	long combinations() {
 		unsigned long result = 1;
 
 		for(int i=0; i<reels.size(); i++) {
@@ -478,6 +469,21 @@ public:
 		}
 
 		return result;
+	}
+
+	void init() {
+		/*
+		 * Initialize stops of the reels in the beginning.
+		 */
+		stops.clear();
+		for(int i=0; i<reels.size(); i++) {
+			stops.push_back(0);
+		}
+
+		line.clear();
+		for(int i=0; i<reels.size(); i++) {
+			line.push_back( reels[i][stops[i]] );
+		}
 	}
 
 	void next() {
@@ -501,22 +507,65 @@ public:
 	}
 
 	int win() {
-		return 0;
+		int symbol = line[0];
+
+		for (int i=0; i<line.size(); i++) {
+			if(symbol != 1) {
+				break;
+			}
+
+			symbol = line [i];
+		}
+
+        for (int i = 0; i<line.size(); i++) {
+            if (line[i] == 1) {
+                line[i] = symbol;
+            }
+        }
+
+        int counter = 0;
+        for (int i = 0; i < line.size(); i++) {
+            if (line[i] == symbol) {
+                counter++;
+            } else {
+                break;
+            }
+        }
+
+        return paytable[counter][symbol];
 	}
 
 	int scatters() {
-		return 0;
+		int counter = 0;
+
+		for(int i=0; i<reels.size(); i++) {
+			for(int j=0; j<ROWS_SIZE; j++) {
+				if(reels[i][(stops[i]+j)%reels[i].size()] == 16) {
+					counter++;
+				}
+			}
+		}
+
+		return counter;
 	}
 
 	int bonus() {
-		return 0;
+		int counter = 0;
+
+		for(int i=0; i<reels.size(); i++) {
+			for(int j=0; j<ROWS_SIZE; j++) {
+				if(reels[i][(stops[i]+j)%reels[i].size()] == 15) {
+					counter++;
+				}
+			}
+		}
+
+		return counter;
 	}
 
 	void calculate(std::vector<double> &result) {
-		init();
-
 		result.clear();
-		result.resize(3);
+		result.resize(7);
 
 		/*
 		 * RTP.
@@ -542,7 +591,7 @@ public:
 		/*
 		 * Check all possible combinations.
 		 */
-		for(unsigned long g=combinations()-1; g>=0; g--) {
+		for(long g=combinations()-1; g>=0; g--) {
 			result[0] += win();
 
 			/*
@@ -568,7 +617,8 @@ public:
 				result[0] += multipliers[5];
 				break;
 			default:
-				std::cerr<<"More than 5 scatters!"<<std::endl;
+				//std::cerr<<"More than 5 scatters!"<<std::endl;
+				result[0] += INVALID_REELS_PENALTY;
 				break;
 			}
 
@@ -589,7 +639,8 @@ public:
 				result[6] += 1;
 				break;
 			default:
-				std::cerr<<"More than 5 bonus symbols!"<<std::endl;
+				//std::cerr<<"More than 5 bonus symbols!"<<std::endl;
+				result[0] += INVALID_REELS_PENALTY;
 				break;
 			}
 
