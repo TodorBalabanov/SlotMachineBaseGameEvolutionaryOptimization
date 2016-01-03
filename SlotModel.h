@@ -1,14 +1,6 @@
 #ifndef SLOTMODEL_H_INCLUDED
 #define SLOTMODEL_H_INCLUDED
 
-#define REEL_SIZE 63
-
-#define REELS_SIZE 5
-
-#define ROWS_SIZE 3
-
-#define INVALID_REELS_PENALTY 10000
-
 class SlotModel {
 public:
 

@@ -28,55 +28,11 @@ static std::vector<double> targets;
 
 static SlotModel model;
 
-static void targetsToString(char *buffer, const std::vector<double> &targets) {
-    char value[100];
-
-    sprintf(value, "%d", (int)targets.size());
-
-    buffer[0] = '\0';
-    strcat(buffer, value);
-
-    for(int i=0; i<targets.size(); i++) {
-        strcat(buffer, " ");
-        sprintf(value, "%lf", targets[i]);
-        strcat(buffer, value);
-    }
-}
-
-static void stringToTargets(std::vector<double> &targets, char *buffer) {
-    int count;
-    sscanf(buffer, "%d", &count);
-    buffer = strstr(buffer, " ") + 1;
-
-    double value;
-    for(int i=0; i<count; i++) {
-        sscanf(buffer, "%lf", &value);
-        targets.push_back(value);
-        buffer = strstr(buffer, " ") + 1;
-    }
-}
-
 static void master() {
 	unsigned long counter = 0;
 
 	if(rank != ROOT_NODE) {
 		return;
-	}
-
-	/*
-	 * Send optimization targets to all other nodes.
-	 */{
-		targetsToString(buffer, targets);
-		for(int r=0; r<size; r++) {
-			/*
-			 * Root node is not included.
-			 */
-			if(r == ROOT_NODE) {
-				continue;
-			}
-
-			MPI_Send(buffer, strlen(buffer), MPI_BYTE, r, DEFAULT_TAG, MPI_COMM_WORLD);
-		}
 	}
 
 	GeneticAlgorithm global;
@@ -144,10 +100,6 @@ static void slave() {
 	if(rank == ROOT_NODE) {
 		return;
 	}
-
-    std::vector<double> targets;
-	MPI_Recv(buffer, RECEIVE_BUFFER_SIZE, MPI_BYTE, ROOT_NODE, DEFAULT_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    stringToTargets(targets, buffer);
 
 	do {
 		GeneticAlgorithm ga;
