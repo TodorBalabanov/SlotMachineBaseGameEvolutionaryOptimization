@@ -6,16 +6,16 @@
 class GeneticAlgorithmOptimizer {
 private:
 	static double evaluate(SlotModel &model, const std::vector<double> &targets, const std::vector<std::vector<int> > &reels) {
-	    std::vector<double> parameters;
+		std::vector<double> parameters;
 
-	    model.load(reels);
-	    model.init();
-	    model.calculate(parameters);
+		model.load(reels);
+		model.init();
+		model.calculate(parameters);
 
-        double sum = 0.0;
-        for(int i=0; i<targets.size() && i<parameters.size(); i++) {
-            sum += (targets[i]-parameters[i]) * (targets[i]-parameters[i]);
-        }
+		double sum = 0.0;
+		for(int i=0; i<targets.size() && i<parameters.size(); i++) {
+			sum += (targets[i]-parameters[i]) * (targets[i]-parameters[i]);
+		}
 
 		return sum;
 	}
@@ -29,13 +29,13 @@ public:
 			std::vector<std::vector<int> > reels;
 			reels.resize(REELS_SIZE);
 			for(int i=0, value; i<reels.size(); i++) {
-                    for(int j=0; j<REEL_SIZE; j++) {
-                        do{
-                            value = rand() % model.symbols.size();
-                        }while(model.symbols[value] == "EMPTY");
+				for(int j=0; j<REEL_SIZE; j++) {
+					do {
+						value = rand() % model.symbols.size();
+					} while(model.symbols[value] == "EMPTY");
 
-                        reels[i].push_back(value);
-                    }
+					reels[i].push_back(value);
+				}
 			}
 
 			ga.setChromosome( Chromosome(reels,INVALID_FITNESS_VALUE) );

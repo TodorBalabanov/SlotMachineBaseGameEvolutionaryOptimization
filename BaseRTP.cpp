@@ -50,7 +50,7 @@ static void master() {
 
 			if(counter == 0) {
 				GeneticAlgorithmOptimizer::addRandomReels(global, model, targets
-                                              , LOCAL_POPULATION_SIZE*size);
+						, LOCAL_POPULATION_SIZE*size);
 				GeneticAlgorithm ga;
 				global.subset(ga, LOCAL_POPULATION_SIZE);
 				populations[r] = ga;
@@ -125,13 +125,13 @@ int main(int argc, char **argv) {
 
 	srand( time(NULL)^getpid() );
 
-    targets.push_back(0.65);
-    targets.push_back(0.09);
-    targets.push_back(0.03);
-    targets.push_back(0.01);
-    targets.push_back(0.08);
-    targets.push_back(0.04);
-    targets.push_back(0.01);
+	targets.push_back(0.65);
+	targets.push_back(0.09);
+	targets.push_back(0.03);
+	targets.push_back(0.01);
+	targets.push_back(0.08);
+	targets.push_back(0.04);
+	targets.push_back(0.01);
 
 	/*
 	 * Firs process will distribute the working tasks.

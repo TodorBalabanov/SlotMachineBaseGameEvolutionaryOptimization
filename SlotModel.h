@@ -509,22 +509,22 @@ public:
 			symbol = line [i];
 		}
 
-        for (int i = 0; i<line.size(); i++) {
-            if (line[i] == 1) {
-                line[i] = symbol;
-            }
-        }
+		for (int i = 0; i<line.size(); i++) {
+			if (line[i] == 1) {
+				line[i] = symbol;
+			}
+		}
 
-        int counter = 0;
-        for (int i = 0; i < line.size(); i++) {
-            if (line[i] == symbol) {
-                counter++;
-            } else {
-                break;
-            }
-        }
+		int counter = 0;
+		for (int i = 0; i < line.size(); i++) {
+			if (line[i] == symbol) {
+				counter++;
+			} else {
+				break;
+			}
+		}
 
-        return paytable[counter][symbol];
+		return paytable[counter][symbol];
 	}
 
 	int scatters() {

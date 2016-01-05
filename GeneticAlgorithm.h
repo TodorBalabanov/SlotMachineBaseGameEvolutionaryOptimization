@@ -186,17 +186,30 @@ public:
 	}
 
 	void crossover() {
-		//population[resultIndex].reels[i][j] = population[firstIndex].reels[i][j];
-		//population[resultIndex].reels[i][j] = population[secondIndex].reels[i][j];
+		std::vector<std::vector<int> > &a = population[firstIndex].reels;
+		std::vector<std::vector<int> > &b = population[secondIndex].reels;
+		std::vector<std::vector<int> > &c = population[resultIndex].reels;
+
+		for(int i=0; i<a.size() && i<b.size() ; i++) {
+			for(int j=0; j<a[i].size() && j<b[i].size(); i++) {
+				if(rand() % 2 == 0) {
+					c[i][j] = a[i][j];
+				} else {
+					c[i][j] = b[i][j];
+				}
+			}
+		}
+
 		population[resultIndex].fitness = INVALID_FITNESS_VALUE;
 	}
 
 	void mutation() {
 		int index = rand() % population.size();
-//		int i = rand() % population[resultIndex].size();
-//		int j = rand() % population[resultIndex][i].size();
+		int i = rand() % population[resultIndex].reels.size();
+		int j = rand() % population[resultIndex].reels[i].size();
 
-//		population[resultIndex][i][j] = population[index][i][j];
+		population[resultIndex].reels[i][j] = population[index].reels[i][j];
+
 		population[resultIndex].fitness = INVALID_FITNESS_VALUE;
 	}
 
@@ -213,7 +226,20 @@ public:
 		for(int p=0; p<population.size(); p++) {
 			result += std::to_string(population[p].fitness);
 			result += " ";
-//			result += population[p].reels[i][j];
+
+			result += std::to_string(population[p].reels.size());
+			result += " ";
+
+			for(int i=0; i<population[p].reels.size(); i++) {
+				result +=std::to_string( population[p].reels[i].size());
+				result += " ";
+
+				for(int j=0; j<population[p].reels[i].size(); j++) {
+					result += std::to_string(population[p].reels[i][j]);
+					result += " ";
+				}
+			}
+
 			result += " ";
 		}
 
@@ -237,14 +263,26 @@ public:
 		int size = 0;
 		in >> size;
 
-		double value;
 		for(int p=0; p<size; p++) {
-			in >> value;
+			double fitness;
+			in >> fitness;
 
+			int width, height;
 			std::vector<std::vector<int> > reels;
-//			in >> reels[i][j];
 
-			setChromosome(Chromosome(reels,value));
+			in >> width;
+			reels.resize(width);
+
+			for(int i=0; i<width; i++) {
+				in >> height;
+				reels[i].resize(height);
+
+				for(int j=0; j<height; j++) {
+					in >> reels[i][j];
+				}
+			}
+
+			setChromosome(Chromosome(reels,fitness));
 
 			if(population[bestIndex].fitness > population[p].fitness) {
 				bestIndex = p;
@@ -271,9 +309,13 @@ std::ostream& operator<< (std::ostream &out, const GeneticAlgorithm &ga) {
 	for(int p=0; p<ga.population.size(); p++) {
 		out << ga.population[p].fitness;
 		out << std::endl;
-//		for(int i=0; i<ga.population[p].reels.size(); i++) {
-//			out << ga.population[p].reels[i][j];
-//		}
+		for(int i=0; i<ga.population[p].reels.size(); i++) {
+			for(int j=0; j<ga.population[p].reels[i].size(); j++) {
+				out << ga.population[p].reels[i][j];
+				out << " ";
+			}
+			out << std::endl;
+		}
 		out << std::endl;
 	}
 
