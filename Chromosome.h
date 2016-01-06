@@ -2,27 +2,12 @@
 #define CHROMOSOME_H_INCLUDED
 
 class Chromosome {
-private:
-
-	static void copy(std::vector<std::vector<int> > &a, const std::vector<std::vector<int> > &b) {
-		a.clear();
-
-		a.resize(b.size());
-		for(int i=0; i<a.size(); i++) {
-			a[i].resize( b[i].size() );
-
-			for(int j=0; j<a[i].size(); j++) {
-				a[i][j] = b[i][j];
-			}
-		}
-	}
-
 public:
 	double fitness;
 	std::vector<std::vector<int> > reels;
 
 	Chromosome(const std::vector<std::vector<int> > &reels, double fitness) {
-		copy(this->reels, reels);
+		Common::copy(this->reels, reels);
 		this->fitness = fitness;
 	}
 
@@ -35,7 +20,7 @@ public:
 	}
 
 	Chromosome& operator=(const Chromosome &chromosome) {
-		copy(this->reels, chromosome.reels);
+		Common::copy(this->reels, chromosome.reels);
 		this->fitness = chromosome.fitness;
 
 		return *this;

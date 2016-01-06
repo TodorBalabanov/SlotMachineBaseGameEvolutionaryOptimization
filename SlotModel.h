@@ -443,14 +443,7 @@ public:
 	}
 
 	void load(const std::vector<std::vector<int> > &values) {
-		reels.clear();
-
-		reels.resize( values.size() );
-		for(int i=0; i<values.size(); i++) {
-			for(int j=0; j<values[i].size(); i++) {
-				reels[i].push_back( values[i][j] );
-			}
-		}
+		Common::copy(reels, values);
 	}
 
 	long combinations() {
