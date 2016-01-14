@@ -41,57 +41,86 @@ static void master() {
 		std::cout << "Round : " << (counter+1) << std::endl;
 
 		for(int r=0; r<size; r++) {
+			std::cerr << "Test point 1 ..." << std::endl;
 			/*
 			 * Root node is not included.
 			 */
 			if(r == ROOT_NODE) {
 				continue;
 			}
+			std::cerr << "Test point 2 ..." << std::endl;
 
 			if(counter == 0) {
+				std::cerr << "Test point 3 ..." << std::endl;
 				GeneticAlgorithmOptimizer::addRandomReels(global, model, targets
 						, LOCAL_POPULATION_SIZE*size);
+				std::cerr << "Test point 4 ..." << std::endl;
 				GeneticAlgorithm ga;
+				std::cerr << "Test point 5 ..." << std::endl;
 				global.subset(ga, LOCAL_POPULATION_SIZE);
+				std::cerr << "Test point 6 ..." << std::endl;
 				populations[r] = ga;
+				std::cerr << "Test point 7 ..." << std::endl;
 			} else {
 				//TODO Find better way to control this probability.
+				std::cerr << "Test point 8 ..." << std::endl;
 				if(rand()%(NUMBER_OF_BROADCASTS/10) == 0) {
+					std::cerr << "Test point 9 ..." << std::endl;
 					GeneticAlgorithm ga;
+					std::cerr << "Test point 10 ..." << std::endl;
 					global.subset(ga, LOCAL_POPULATION_SIZE);
+					std::cerr << "Test point 11 ..." << std::endl;
 					populations[r] = ga;
+					std::cerr << "Test point 12 ..." << std::endl;
 				}
+				std::cerr << "Test point 13 ..." << std::endl;
 			}
+			std::cerr << "Test point 14 ..." << std::endl;
 			const std::string &value = populations[r].toString();
+			std::cerr << "Test point 15 ..." << std::endl;
 			MPI_Send(value.c_str(), value.size(), MPI_BYTE, r, DEFAULT_TAG, MPI_COMM_WORLD);
+			std::cerr << "Test point 16 ..." << std::endl;
 		}
+		std::cerr << "Test point 17 ..." << std::endl;
 
 		/*
 		 * Collect results from all other nodes.
 		 */
+		std::cerr << "Test point 18 ..." << std::endl;
 		for(int r=0; r<size; r++) {
+			std::cerr << "Test point 19 ..." << std::endl;
 			/*
 			 * Root node is not included.
 			 */
+			std::cerr << "Test point 20 ..." << std::endl;
 			if(r == ROOT_NODE) {
 				continue;
 			}
+			std::cerr << "Test point 21 ..." << std::endl;
 
 			GeneticAlgorithm ga;
+			std::cerr << "Test point 22 ..." << std::endl;
 			MPI_Recv(buffer, RECEIVE_BUFFER_SIZE, MPI_BYTE, r, DEFAULT_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+			std::cerr << "Test point 23 ..." << std::endl;
 			ga.fromString(buffer);
+			std::cerr << "Test point 24 ..." << std::endl;
 			populations[r] = ga;
+			std::cerr << "Test point 25 ..." << std::endl;
 			if(ga.getBestFitness() < global.getBestFitness()) {
+				std::cerr << "Test point 26 ..." << std::endl;
 				global.setChromosome( ga.getBestChromosome() );
 			}
+			std::cerr << "Test point 27 ..." << std::endl;
 			std::cout << "Worker " << r << " : " << ga.getBestChromosome().fitness << std::endl;
 		}
+		std::cerr << "Test point 28 ..." << std::endl;
 
 		std::cout << "Global : " << global.getBestChromosome().fitness << std::endl;
 
-
 		counter++;
+		std::cerr << "Test point 29 ..." << std::endl;
 	} while(counter < NUMBER_OF_BROADCASTS);
+	std::cerr << "Test point 30 ..." << std::endl;
 }
 
 static void slave() {
