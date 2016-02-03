@@ -2,6 +2,14 @@
 #define SLOTMODEL_H_INCLUDED
 
 class SlotModel {
+private:
+
+	std::vector<std::vector<int> > reels;
+
+	std::vector<int> stops;
+
+	std::vector<int> line;
+
 public:
 
 	std::vector<std::string> symbols;
@@ -16,11 +24,8 @@ public:
 
 private:
 
-	std::vector<std::vector<int> > reels;
 
-	std::vector<int> stops;
-
-	std::vector<int> line;
+	friend std::ostream& operator<< (std::ostream &out, const SlotModel &model);
 
 public:
 
@@ -637,5 +642,50 @@ public:
 		}
 	}
 };
+
+std::ostream& operator<< (std::ostream &out, const SlotModel &model) {
+	for(int i=0; i<model.symbols.size() && i<model.types.size(); i++) {
+		out << model.symbols[i];
+		out << "\t";
+		out << model.types[i];
+		out << std::endl;
+	}
+	out << std::endl;
+
+	for(int i=0; i<model.paytable.size(); i++) {
+		for(int j=0; j<model.paytable[i].size(); j++) {
+			out << model.paytable[i][j];
+			out << " ";
+		}
+		out << std::endl;
+	}
+	out << std::endl;
+
+	for(int i=0; i<model.lines.size(); i++) {
+		for(int j=0; j<model.lines[i].size(); j++) {
+			out << model.lines[i][j];
+			out << " ";
+		}
+		out << std::endl;
+	}
+	out << std::endl;
+
+	for(int i=0; i<model.multipliers.size(); i++) {
+		out << model.multipliers[i];
+		out << " ";
+	}
+	out << std::endl;
+
+	for(int i=0; i<model.reels.size(); i++) {
+		for(int j=0; j<model.reels[i].size(); j++) {
+			out << model.reels[i][j];
+			out << " ";
+		}
+		out << std::endl;
+	}
+	out << std::endl;
+
+	return out;
+}
 
 #endif

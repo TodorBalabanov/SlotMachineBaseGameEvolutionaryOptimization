@@ -143,6 +143,9 @@ static void slave() {
 		 * Calculate as regular node.
 		 */
 		std::cerr << rank << " Test point 35 ..." << std::endl;
+		std::cerr << rank << ga << std::endl;
+		std::cerr << rank << model << std::endl;
+		//std::cerr << rank << targets << std::endl;
 		GeneticAlgorithmOptimizer::optimize(ga, model, targets, LOCAL_OPTIMIZATION_EPOCHES);
 
 		std::cerr << rank << " Test point 36 ..." << std::endl;
