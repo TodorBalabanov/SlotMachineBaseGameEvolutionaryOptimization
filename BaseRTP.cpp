@@ -175,6 +175,18 @@ int main(int argc, char **argv) {
 	targets.push_back(0.04);
 	targets.push_back(0.01);
 
+	/*TEST*/ {
+		if(rank > 0) {
+			return( EXIT_SUCCESS );
+		}
+
+		GeneticAlgorithm ga;
+		GeneticAlgorithmOptimizer::addRandomReels(ga, model, targets, LOCAL_POPULATION_SIZE);
+		GeneticAlgorithmOptimizer::optimize(ga, model, targets, LOCAL_OPTIMIZATION_EPOCHES);
+
+		return( EXIT_SUCCESS );
+	}
+
 	/*
 	 * Firs process will distribute the working tasks.
 	 */
