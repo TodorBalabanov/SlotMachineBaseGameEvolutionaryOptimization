@@ -190,8 +190,8 @@ public:
 		std::vector<std::vector<int> > &b = population[secondIndex].reels;
 		std::vector<std::vector<int> > &c = population[resultIndex].reels;
 
-		for(int i=0; i<a.size() && i<b.size() ; i++) {
-			for(int j=0; j<a[i].size() && j<b[i].size(); i++) {
+		for(int i=0; i<a.size() && i<b.size() && i<c.size(); i++) {
+			for(int j=0; j<a[i].size() && j<b[i].size() && i<c[i].size(); j++) {
 				if(rand() % 2 == 0) {
 					c[i][j] = a[i][j];
 				} else {

@@ -177,6 +177,7 @@ int main(int argc, char **argv) {
 
 	/*TEST*/ {
 		if(rank > 0) {
+			MPI_Finalize();
 			return( EXIT_SUCCESS );
 		}
 
@@ -184,6 +185,7 @@ int main(int argc, char **argv) {
 		GeneticAlgorithmOptimizer::addRandomReels(ga, model, targets, LOCAL_POPULATION_SIZE);
 		GeneticAlgorithmOptimizer::optimize(ga, model, targets, LOCAL_OPTIMIZATION_EPOCHES);
 
+		MPI_Finalize();
 		return( EXIT_SUCCESS );
 	}
 
