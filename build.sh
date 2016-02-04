@@ -5,4 +5,4 @@ astyle "*.h" --indent=force-tab --style=java / -A2 --recursive
 find . -name "*.orig" -type f -delete
 rm BaseRTP.exe
 mpicxx BaseRTP.cpp -o BaseRTP.exe
-I $1
+-nohup nice mpirun -np 8 ./BaseRTP.exe $1
