@@ -14,7 +14,7 @@
 #define NUMBER_OF_BROADCASTS 67
 
 #define REELS_SIZE 5
-#define REEL_SIZE 63
+#define REEL_SIZE 13
 #define ROWS_SIZE 3
 
 #define INVALID_REELS_PENALTY 10000
