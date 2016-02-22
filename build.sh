@@ -5,4 +5,4 @@ astyle "*.h" --indent=force-tab --style=java / -A2 --recursive
 find . -name "*.orig" -type f -delete
 rm BaseRTP.exe
 mpicxx BaseRTP.cpp -o BaseRTP.exe
--nohup nice mpirun -np 8 ./BaseRTP.exe $1
+mpirun -np 8 ./BaseRTP.exe >results_$(date +"%Y_%m_%d_%H_%M_%S").txt
